@@ -13,7 +13,6 @@ const storage = multer.diskStorage({
         cb(null, file.fieldname + '_' + Date.now() + '_' + file.originalname)
     }
 })
-
 const upload = multer({ storage: storage }).single('image');
 
 router.get('/', async (req, res) => {

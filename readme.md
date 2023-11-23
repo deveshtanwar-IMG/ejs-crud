@@ -9,7 +9,7 @@ To use this project on your local machine, follow these steps:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/express-crud-app.git
+git clone https://github.com/deveshtanwar-IMG/ejs-crud
 cd express-crud-app
 ```
 
@@ -24,7 +24,7 @@ npm install
 Create a `.env` file in the root of the project and add the following variables:
 
 ```env
-PORT=3000  # You can change the port number
+PORT=5001  # You can change the port number
 DB_URI=your_database_uri_here  # Replace with your MongoDB URI
 ```
 
@@ -38,7 +38,7 @@ Create a folder named `uploads` in the root of the project. This folder will be 
 npm start
 ```
 
-The application will be running on `http://localhost:3000` (or the port you specified in the `.env` file).
+The application will be running on `http://localhost:5001` (or the port you specified in the `.env` file).
 
 ## Features
 

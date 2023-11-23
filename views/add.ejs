@@ -24,10 +24,26 @@
             </div>
             <div class="mb-3">
               <label for="exampleInputImage" class="form-label">Select Image</label>
-              <input type="file" class="form-control" id="exampleInputImage" name="image">
+              <input type="file" class="form-control" id="exampleInputImage" name="image" onchange='previewHandler(event)'>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <div style="width: 300px;">
+              <button type="submit" class="btn btn-primary">Submit</button>
+              <img src="/" id="preview" style="width: 50px; display: none" class="ms-2"/>
+            </div>
         </form>
     </div>
+    <script>
+      const previewHandler = (e) => {
+        var input = event.target;
+        var preview = document.getElementById('preview');
+  
+        var reader = new FileReader();
+        reader.onload = function () {
+          preview.src = reader.result;
+          preview.style.display = "inline-block";
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    </script>
 </body>
 </html>
