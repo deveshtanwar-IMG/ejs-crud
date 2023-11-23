@@ -60,7 +60,13 @@ router.post('/edit/:id', upload, async (req, res) => {
             ...req.body,
             image: req.file.filename
         }
-        await Users.findByIdAndUpdate({ _id: id }, user)
+        const updateData = await Users.findByIdAndUpdate({ _id: id }, user)
+        fs.unlink('uploads/' + `${updateData.image}`, (err) => {
+            if (err) {
+                throw err;
+            }
+            console.log("Delete File successfully.");
+        });
         res.status(200).redirect('/')
     } catch (error) {
         res.status(500).json(error);
