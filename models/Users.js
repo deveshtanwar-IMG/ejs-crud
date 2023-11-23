@@ -1,22 +1,27 @@
 const mongoose = require('mongoose');
+const moment = require('moment')
 
 const userSchema = new mongoose.Schema({
     name:{
         type: String,
-        required: true
+        required: false
     },
     email:{
         type: String,
-        required: true
+        required: false
     },
     phone:{
         type: Number,
-        required: true
+        required: false
     },
     created:{
-        type: Date,
+        type: String,
         required: false,
-        default: Date.now
+        default: moment().format('MMMM Do YYYY, h:mm:ss a')
+    },
+    image:{
+        type: String,
+        required: false,
     }
 })
 

@@ -9,7 +9,7 @@
 <body>
     <h1 class="text-center my-5"> ADD USER</h1>
     <div class="container">
-        <form class="mx-auto" style="max-width: 500px" action="/add" method="post">
+        <form class="mx-auto" style="max-width: 500px" action="/add" method="post" enctype="multipart/form-data">
             <div class="mb-3">
               <label for="exampleInputName" class="form-label">Name</label>
               <input type="text" class="form-control" id="exampleInputName" name="name">
@@ -21,6 +21,10 @@
             <div class="mb-3">
               <label for="exampleInputPhone" class="form-label">Phone</label>
               <input type="number" class="form-control" id="exampleInputPhone" name="phone">
+            </div>
+            <div class="mb-3">
+              <label for="exampleInputImage" class="form-label">Select Image</label>
+              <input type="file" class="form-control" id="exampleInputImage" name="image">
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>

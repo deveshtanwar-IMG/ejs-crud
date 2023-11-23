@@ -15,6 +15,9 @@ app.use(express.json())
 // route prefix
 app.use(routes)
 
+// static upload folder
+app.use(express.static('uploads'));
+
 // set Template engine
 app.set('view engine', 'ejs');
 
