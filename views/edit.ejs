@@ -12,21 +12,27 @@
 </head>
 
 <body>
-  <h1 class="text-center my-5"> EDIT USER</h1>
+  <h1 class="text-center my-3"> EDIT USER</h1>
   <div class="container">
     <form class="mx-auto" style="max-width: 500px" action="/edit/<%=data._id%>" method="post"
       enctype="multipart/form-data">
       <div class="mb-3">
         <label for="exampleInputName" class="form-label">Name</label>
-        <input type="text" class="form-control" id="exampleInputName" name="name" value='<%=data.name %>'>
+        <input type="text" class="form-control" id="exampleInputName" name="name" value='<%=data.name %>'
+          onkeyup="validateForm(event)">
+        <span style="color: red;" id="name-error"></span>
       </div>
       <div class="mb-3">
         <label for="exampleInputEmail" class="form-label">Email</label>
-        <input type="email" class="form-control" id="exampleInputEmail" name="email" value='<%= data.email %>'>
+        <input type="email" class="form-control" id="exampleInputEmail" name="email" value='<%= data.email %>'
+          onkeyup="validateForm(event)">
+        <span style="color: red;" id="email-error"></span>
       </div>
       <div class="mb-3">
         <label for="exampleInputPhone" class="form-label">Phone</label>
-        <input type="number" class="form-control" id="exampleInputPhone" name="phone" value='<%= data.phone %>'>
+        <input type="number" class="form-control" id="exampleInputPhone" name="phone" value='<%= data.phone %>'
+          onkeyup="validateForm(event)">
+        <span style="color: red;" id="phone-error"></span>
       </div>
       <div class="mb-3">
         <label for="exampleInputImage" class="form-label">Select Image</label>
@@ -35,7 +41,7 @@
 
       <div style="width: 300px;">
         <img src="/<%= data.image%>" id="preview" style="width: 50px" />
-        <button type="submit" class="btn btn-primary mx-3">Update</button>
+        <button type="submit" class="btn btn-primary mx-3" id="update">Update</button>
       </div>
     </form>
   </div>
@@ -49,6 +55,64 @@
         preview.src = reader.result;
       };
       reader.readAsDataURL(input.files[0]);
+    }
+
+
+    const validateForm = (e) => {
+
+      const updateButton = document.getElementById('update');
+
+      let nameValid = false;
+      let emailValid = false;
+      let phoneValid = false;
+
+
+      if (e.target.name == 'name') {
+        var regex = /\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+/gm
+        var text = e.target.value
+        const result = regex.test(text)
+        if (!result) {
+          document.getElementById('name-error').innerHTML = '* 1st letter capital and alphabet only * Atleast 2 character';
+        }
+        else {
+          document.getElementById('name-error').innerHTML = '';
+          nameValid = true;
+        }
+      }
+
+      if (e.target.name == 'email') {
+        var regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g
+        var text = e.target.value
+        const result = regex.test(text)
+        if (!result) {
+          document.getElementById('email-error').innerHTML = 'Enter valid email - example@gmail.com'
+        }
+        else {
+          document.getElementById('email-error').innerHTML = '';
+          emailValid = true;
+        }
+      }
+
+      if (e.target.name == 'phone') {
+        var regex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/g
+        var text = e.target.value
+        const result = regex.test(text)
+        if (!result) {
+          document.getElementById('phone-error').innerHTML = 'Enter 10 digit Mobile No. with country code'
+        }
+        else {
+          document.getElementById('phone-error').innerHTML = '';
+          phoneValid = true;
+        }
+      }
+
+      if (!nameValid && !emailValid && !phoneValid) {
+        updateButton.setAttribute('disabled', 'true')
+      }
+      else {
+        updateButton.removeAttribute('disabled')
+      }
+
     }
   </script>
 

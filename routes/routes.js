@@ -7,7 +7,7 @@ const fs = require('fs');
 // Image upload
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './uploads')
+        cb(null, './public/uploads')
     },
     filename: (req, file, cb) => {
         cb(null, file.fieldname + '_' + Date.now() + '_' + file.originalname)
@@ -35,7 +35,8 @@ router.get('/edit/:id', async (req, res) => {
         const getDataById = await Users.findById({ _id: id })
         res.render('edit', { title: 'Edit User', data: getDataById })
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        throw error;
     }
 })
 
@@ -46,29 +47,32 @@ router.post('/add', upload, async (req, res) => {
             image: req.file.filename
         }
         await Users.create(user);
-        res.status(200).redirect('/')
+        res.redirect('/')
     } catch (error) {
-        res.status(500).json(error)
+        console.log(error);
+        throw error;
     }
 })
 
 router.post('/edit/:id', upload, async (req, res) => {
     try {
         const { id } = req.params;
-        const user = {
-            ...req.body,
-            image: req.file.filename
+        const { image } = await Users.findOne({ _id: id }, { image: 1 })
+        if (req.file) {
+            req.body.image = req.file.filename
+            fs.unlink('uploads/' + `${image}`, (err) => {
+                if (err) {
+                    throw err;
+                }
+            });
+        } else {
+            req.body.image = image
         }
-        const updateData = await Users.findByIdAndUpdate({ _id: id }, user)
-        fs.unlink('uploads/' + `${updateData.image}`, (err) => {
-            if (err) {
-                throw err;
-            }
-            console.log("Delete File successfully.");
-        });
-        res.status(200).redirect('/')
+        await Users.findByIdAndUpdate({ _id: id }, req.body)
+        res.redirect('/')
     } catch (error) {
-        res.status(500).json(error);
+        console.log(error);
+        throw error;
     }
 })
 
@@ -83,9 +87,10 @@ router.get('/delete/:id', async (req, res) => {
             }
             console.log("Delete File successfully.");
         });
-        res.status(200).redirect('/')
+        return res.redirect('/')
     } catch (error) {
-        res.status(500).json(error);
+        console.log(error);
+        throw error;
     }
 })
 

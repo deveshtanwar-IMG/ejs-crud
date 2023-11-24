@@ -1,7 +1,7 @@
 const express = require('express');
 require('dotenv').config();
 const routes = require('./routes/routes');
-require('./db_connect.js')
+require('./db_connect.js');
 
 const app = express();
 
@@ -16,7 +16,7 @@ app.use(express.json())
 app.use(routes)
 
 // static upload folder
-app.use(express.static('uploads'));
+app.use(express.static('public/uploads'));
 
 // set Template engine
 app.set('view engine', 'ejs');
