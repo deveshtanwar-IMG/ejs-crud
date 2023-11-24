@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/add', (req, res) => {
-    res.render('add', { title: 'Add User' })
+    res.render('add', { duplicate: ''})
 })
 
 router.get('/edit/:id', async (req, res) => {
@@ -42,12 +42,19 @@ router.get('/edit/:id', async (req, res) => {
 
 router.post('/add', upload, async (req, res) => {
     try {
-        const user = {
-            ...req.body,
-            image: req.file.filename
+        const {email} = req.body;
+        const userExist = await Users.findOne({ email: email });
+        if (userExist) {
+            res.render('add', { duplicate: 'This email is already used' })
         }
-        await Users.create(user);
-        res.redirect('/')
+        else {
+            const user = {
+                ...req.body,
+                image: req.file.filename
+            }
+            await Users.create(user);
+            res.redirect('/')
+        }
     } catch (error) {
         console.log(error);
         throw error;
@@ -60,7 +67,7 @@ router.post('/edit/:id', upload, async (req, res) => {
         const { image } = await Users.findOne({ _id: id }, { image: 1 })
         if (req.file) {
             req.body.image = req.file.filename
-            fs.unlink('uploads/' + `${image}`, (err) => {
+            fs.unlink('./public/uploads/' + `${image}`, (err) => {
                 if (err) {
                     throw err;
                 }
@@ -80,8 +87,7 @@ router.get('/delete/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const deleteData = await Users.findByIdAndDelete({ _id: id })
-        console.log(deleteData)
-        fs.unlink('uploads/' + `${deleteData.image}`, (err) => {
+        fs.unlink('./public/uploads/' + `${deleteData.image}`, (err) => {
             if (err) {
                 throw err;
             }

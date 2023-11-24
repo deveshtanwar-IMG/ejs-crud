@@ -28,9 +28,9 @@ PORT=5001  # You can change the port number
 DB_URI=your_database_uri_here  # Replace with your MongoDB URI
 ```
 
-### 4. Create 'uploads' Folder
+### 4. Create 'public/uploads' Folder
 
-Create a folder named `uploads` in the root of the project. This folder will be used to save uploaded images.
+Create a folder named `public/uploads` in the root of the project. This folder will be used to save uploaded images.
 
 ### 5. Run the Application
 
