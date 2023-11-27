@@ -1,24 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const Users = require('../models/Users');
-const multer = require('multer');
 const fs = require('fs');
+const upload = require('../assets/index')
+const multer = require('multer')
 
-// Image upload
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, './public/uploads')
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + '_' + Date.now() + '_' + file.originalname)
-    }
-})
-const upload = multer({ storage: storage }).single('image');
 
 router.get('/', async (req, res) => {
     try {
         const getData = await Users.find();
-        res.render('index', { title: 'Home Page', data: getData })
+        res.render('index', { data: getData })
     } catch (error) {
         console.log(error);
         throw error;
@@ -26,57 +17,91 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/add', (req, res) => {
-    res.render('add', { duplicate: ''})
+    res.render('add', { duplicate: '' })
 })
 
 router.get('/edit/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const getDataById = await Users.findById({ _id: id })
-        res.render('edit', { title: 'Edit User', data: getDataById })
+        res.render('edit', { duplicate: '', data: getDataById })
     } catch (error) {
         console.log(error);
         throw error;
     }
 })
 
-router.post('/add', upload, async (req, res) => {
+router.post('/add', async (req, res) => {
     try {
-        const {email} = req.body;
-        const userExist = await Users.findOne({ email: email });
-        if (userExist) {
-            res.render('add', { duplicate: 'This email is already used' })
-        }
-        else {
-            const user = {
-                ...req.body,
-                image: req.file.filename
+        upload(req, res, async function (err) {
+            if (err instanceof multer.MulterError) {
+                // A Multer error occurred when uploading.
+                res.render('add', { duplicate: 'File size exceded, max 1mb allowed' })
+            } else if (err) {
+                // An unknown error occurred when uploading.
+                res.render('add', { duplicate: 'File format should jpeg/jpg/png only' })
             }
-            await Users.create(user);
-            res.redirect('/')
-        }
+            else {
+                // Everything went fine.
+                const { email } = req.body;
+                const userExist = await Users.findOne({ email: email });
+                if (userExist) {
+                    req.files.map((val) => {
+                        return (fs.unlink('./public/uploads/' + val.filename, (err) => {
+                            console.log('duplicate file delete')
+                            console.log('error >>>>', err);
+                        }))
+                    })
+                    res.render('add', { duplicate: 'This email is already used' })
+                }
+                else {
+                    const user = {
+                        ...req.body,
+                        image: req.files.map((val) => {
+                            return (val.filename);
+                        })
+                    }
+                    console.log(user);
+                    await Users.create(user);
+                    res.redirect('/')
+                }
+            }
+        })
     } catch (error) {
         console.log(error);
         throw error;
     }
 })
 
-router.post('/edit/:id', upload, async (req, res) => {
+router.post('/edit/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { image } = await Users.findOne({ _id: id }, { image: 1 })
-        if (req.file) {
-            req.body.image = req.file.filename
-            fs.unlink('./public/uploads/' + `${image}`, (err) => {
-                if (err) {
-                    throw err;
+        const getDataById = await Users.findById({ _id: id })
+        upload(req, res, async function (err) {
+            if (err instanceof multer.MulterError) {
+                // A Multer error occurred when uploading.
+                res.render('edit', { duplicate: 'File size exceded, max 1mb allowed', data: getDataById})
+            } else if (err) {
+                // An unknown error occurred when uploading.
+                res.render('edit', { duplicate: 'File format should jpeg/jpg/png only',data: getDataById })
+            }
+            else {
+                // Everything went fine.
+                const { id } = req.params;
+                const { image } = await Users.findOne({ _id: id })
+                const user = {
+                    ...req.body,
+                    image: [
+                        ...image,
+                        ...req.files.map((val) => {
+                            return (val.filename);
+                        })
+                    ]
                 }
-            });
-        } else {
-            req.body.image = image
-        }
-        await Users.findByIdAndUpdate({ _id: id }, req.body)
-        res.redirect('/')
+                await Users.findByIdAndUpdate({ _id: id }, user)
+                res.redirect('/')
+            }
+        })
     } catch (error) {
         console.log(error);
         throw error;
@@ -87,14 +112,37 @@ router.get('/delete/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const deleteData = await Users.findByIdAndDelete({ _id: id })
-        fs.unlink('./public/uploads/' + `${deleteData.image}`, (err) => {
+        deleteData.image.map((val) => {
+            console.log(val)
+            fs.unlink('./public/uploads/' + `${val}`, (err) => {
+                if (err) {
+                    throw err;
+                }
+                console.log("Delete File successfully.");
+            });
+        })
+        return res.redirect('/')
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+})
+
+router.get('/remove/:id/:imageId', async (req, res) => {
+    try {
+        console.log(req.params)
+        const { id } = req.params;
+        const imageId = req.params.imageId;
+        fs.unlink('./public/uploads/' + imageId, (err) => {
             if (err) {
                 throw err;
             }
-            console.log("Delete File successfully.");
+            console.log("Delete File Successfully")
         });
-        return res.redirect('/')
-    } catch (error) {
+        await Users.findByIdAndUpdate({ _id: id }, { $pull: { image: imageId } })
+        return res.redirect(`/edit/${id}`)
+    }
+    catch (error) {
         console.log(error);
         throw error;
     }

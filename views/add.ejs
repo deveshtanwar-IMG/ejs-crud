@@ -32,14 +32,14 @@
       </div>
       <div class="mb-3">
         <label for="exampleInputPhone" class="form-label">Phone</label>
-        <input type="number" class="form-control" id="exampleInputPhone" name="phone" required
-          onkeyup="validateForm(event)">
+        <input type="text" class="form-control" id="exampleInputPhone" name="phone" required
+          onkeyup="validateForm(event)" maxlength="12">
         <p style="color: red;" id="phone-error"></p>
 
       </div>
       <div class="mb-3">
         <label for="exampleInputImage" class="form-label">Select Image</label>
-        <input type="file" class="form-control" id="exampleInputImage" name="image" onchange='previewHandler(event)'
+        <input type="file" multiple class="form-control" id="exampleInputImage" name="image" onchange='previewHandler(event)'
           required>
       </div>
       <div style="width: 300px;">

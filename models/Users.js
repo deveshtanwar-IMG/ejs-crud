@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
         default: moment().format('MMMM Do YYYY, h:mm:ss a')
     },
     image:{
-        type: String,
+        type: Array,
         required: false,
     }
 })
